@@ -242,7 +242,12 @@ async def tailor(ctx, *, job: str):
         await ctx.send("Unauthorized.")
         return
 
-    background = "User background placeholder"
+    # =========================
+    # 👤 LOAD USER PROFILE
+    # =========================
+    profile = get_user_profile(ctx.author.id)
+
+    background = build_background(profile)
 
     await ctx.send("Generating resume... ⏳")
 
@@ -361,8 +366,14 @@ async def regen(ctx, index: int):
         return
 
     selected_job = jobs[index - 1]["job"]
-    background = "User background placeholder"
 
+    # =========================
+    # 👤 LOAD USER PROFILE
+    # =========================
+    profile = get_user_profile(ctx.author.id)
+
+    background = build_background(profile)
+    
     await ctx.send(f"Regenerating resume for job #{index}... ⏳")
 
     try:
