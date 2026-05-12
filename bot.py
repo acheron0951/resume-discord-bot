@@ -29,6 +29,150 @@ def save_data(data):
         json.dump(data, f, indent=4)
 
 # =========================
+# 👤 GET USER PROFILE
+# =========================
+def get_user_profile(user_id):
+
+    data = load_data()
+
+    user_id = str(user_id)
+
+    if user_id not in data:
+
+        data[user_id] = {
+            "profile": {
+                "work": [],
+                "projects": [],
+                "education": {},
+                "activities": []
+            },
+            "jobs": []
+        }
+
+        save_data(data)
+
+    # Create profile if missing
+    if "profile" not in data[user_id]:
+
+        data[user_id]["profile"] = {
+            "work": [],
+            "projects": [],
+            "education": {},
+            "activities": []
+        }
+
+        save_data(data)
+
+    return data[user_id]["profile"]
+
+
+# =========================
+# 💾 SAVE USER PROFILE
+# =========================
+def save_user_profile(user_id, profile):
+
+    data = load_data()
+
+    user_id = str(user_id)
+
+    if user_id not in data:
+
+        data[user_id] = {
+            "profile": profile,
+            "jobs": []
+        }
+
+    else:
+        data[user_id]["profile"] = profile
+
+    save_data(data)
+
+
+# =========================
+# 🧾 BUILD BACKGROUND
+# =========================
+def build_background(profile):
+
+    text = ""
+
+    # -------------------------
+    # WORK EXPERIENCE
+    # -------------------------
+    if profile["work"]:
+
+        text += "\nWORK EXPERIENCE:\n"
+
+        for w in profile["work"]:
+
+            text += f"""
+{w['role']} - {w['company']} ({w['dates']})
+
+Responsibilities:
+- """ + "\n- ".join(w["responsibilities"]) + f"""
+
+Achievements:
+- """ + "\n- ".join(w["achievements"]) + f"""
+
+Technologies: {w['technologies']}
+"""
+
+    # -------------------------
+    # PROJECTS
+    # -------------------------
+    if profile["projects"]:
+
+        text += "\nPROJECTS:\n"
+
+        for p in profile["projects"]:
+
+            text += f"""
+{p['name']}
+
+Description:
+- """ + "\n- ".join(p["description"]) + f"""
+
+Impact:
+- """ + "\n- ".join(p["impact"]) + f"""
+
+Technologies: {p['technologies']}
+"""
+
+    # -------------------------
+    # EDUCATION
+    # -------------------------
+    education = profile["education"]
+
+    if education:
+
+        text += f"""
+
+EDUCATION:
+{education.get('degree', '')} - {education.get('school', '')}
+
+Graduation: {education.get('grad_date', '')}
+
+GPA: {education.get('gpa', '')}
+
+Coursework: {education.get('coursework', '')}
+"""
+
+    # -------------------------
+    # ACTIVITIES
+    # -------------------------
+    if profile["activities"]:
+
+        text += "\nACTIVITIES:\n"
+
+        for a in profile["activities"]:
+
+            text += f"""
+{a['role']} - {a['name']}
+
+- """ + "\n- ".join(a["details"])
+
+    return text
+
+# =========================
 # 🔧 LOAD ENV
 # =========================
 load_dotenv()
