@@ -373,7 +373,7 @@ async def regen(ctx, index: int):
     profile = get_user_profile(ctx.author.id)
 
     background = build_background(profile)
-    
+
     await ctx.send(f"Regenerating resume for job #{index}... ⏳")
 
     try:
@@ -444,6 +444,158 @@ async def search(ctx, *, keyword: str):
         msg += f"{idx}. {job_text[:80]}...\n"
 
     await ctx.send(msg)
+
+# =========================
+# 👤 SET PROFILE COMMAND
+# =========================
+@bot.command()
+async def setprofile(ctx):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    await ctx.send("Let's build your profile. Reply to each prompt.")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+
+        # =========================
+        # WORK EXPERIENCE
+        # =========================
+        await ctx.send("How many work experiences?")
+        msg = await bot.wait_for("message", check=check)
+        num_work = int(msg.content)
+
+        work = []
+
+        for i in range(num_work):
+
+            await ctx.send(f"Company #{i+1}:")
+            company = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Role:")
+            role = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Dates:")
+            dates = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Responsibilities (comma separated):")
+            responsibilities = (await bot.wait_for("message", check=check)).content.split(",")
+
+            await ctx.send("Achievements (comma separated):")
+            achievements = (await bot.wait_for("message", check=check)).content.split(",")
+
+            await ctx.send("Technologies (comma separated):")
+            technologies = (await bot.wait_for("message", check=check)).content
+
+            work.append({
+                "company": company,
+                "role": role,
+                "dates": dates,
+                "responsibilities": [r.strip() for r in responsibilities],
+                "achievements": [a.strip() for a in achievements],
+                "technologies": technologies
+            })
+
+        # =========================
+        # PROJECTS
+        # =========================
+        await ctx.send("How many projects?")
+        num_projects = int((await bot.wait_for("message", check=check)).content)
+
+        projects = []
+
+        for i in range(num_projects):
+
+            await ctx.send(f"Project name #{i+1}:")
+            name = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Description (comma separated):")
+            description = (await bot.wait_for("message", check=check)).content.split(",")
+
+            await ctx.send("Impact (comma separated):")
+            impact = (await bot.wait_for("message", check=check)).content.split(",")
+
+            await ctx.send("Technologies:")
+            tech = (await bot.wait_for("message", check=check)).content
+
+            projects.append({
+                "name": name,
+                "description": [d.strip() for d in description],
+                "impact": [i.strip() for i in impact],
+                "technologies": tech
+            })
+
+        # =========================
+        # EDUCATION
+        # =========================
+        await ctx.send("School:")
+        school = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Degree:")
+        degree = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Graduation date:")
+        grad_date = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("GPA:")
+        gpa = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Coursework:")
+        coursework = (await bot.wait_for("message", check=check)).content
+
+        education = {
+            "school": school,
+            "degree": degree,
+            "grad_date": grad_date,
+            "gpa": gpa,
+            "coursework": coursework
+        }
+
+        # =========================
+        # ACTIVITIES
+        # =========================
+        await ctx.send("How many activities?")
+        num_activities = int((await bot.wait_for("message", check=check)).content)
+
+        activities = []
+
+        for i in range(num_activities):
+
+            await ctx.send(f"Activity name #{i+1}:")
+            name = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Role:")
+            role = (await bot.wait_for("message", check=check)).content
+
+            await ctx.send("Details (comma separated):")
+            details = (await bot.wait_for("message", check=check)).content.split(",")
+
+            activities.append({
+                "name": name,
+                "role": role,
+                "details": [d.strip() for d in details]
+            })
+
+        # =========================
+        # SAVE PROFILE
+        # =========================
+        profile = {
+            "work": work,
+            "projects": projects,
+            "education": education,
+            "activities": activities
+        }
+
+        save_user_profile(ctx.author.id, profile)
+
+        await ctx.send("✅ Profile saved successfully!")
+
+    except Exception as e:
+        await ctx.send(f"❌ Error building profile: {str(e)}")
 
 # =========================
 # ▶️ RUN BOT
