@@ -28,32 +28,12 @@ def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-# =========================
-# 👤 GET USER PROFILE
-# =========================
-def get_user_profile(user_id):
 
-    data = load_data()
-
-    user_id = str(user_id)
-
+def get_user_profile(data, user_id):
     if user_id not in data:
+        data[user_id] = {}
 
-        data[user_id] = {
-            "profile": {
-                "work": [],
-                "projects": [],
-                "education": {},
-                "activities": []
-            },
-            "jobs": []
-        }
-
-        save_data(data)
-
-    # Create profile if missing
     if "profile" not in data[user_id]:
-
         data[user_id]["profile"] = {
             "work": [],
             "projects": [],
@@ -61,116 +41,8 @@ def get_user_profile(user_id):
             "activities": []
         }
 
-        save_data(data)
-
     return data[user_id]["profile"]
 
-
-# =========================
-# 💾 SAVE USER PROFILE
-# =========================
-def save_user_profile(user_id, profile):
-
-    data = load_data()
-
-    user_id = str(user_id)
-
-    if user_id not in data:
-
-        data[user_id] = {
-            "profile": profile,
-            "jobs": []
-        }
-
-    else:
-        data[user_id]["profile"] = profile
-
-    save_data(data)
-
-
-# =========================
-# 🧾 BUILD BACKGROUND
-# =========================
-def build_background(profile):
-
-    text = ""
-
-    # -------------------------
-    # WORK EXPERIENCE
-    # -------------------------
-    if profile["work"]:
-
-        text += "\nWORK EXPERIENCE:\n"
-
-        for w in profile["work"]:
-
-            text += f"""
-{w['role']} - {w['company']} ({w['dates']})
-
-Responsibilities:
-- """ + "\n- ".join(w["responsibilities"]) + f"""
-
-Achievements:
-- """ + "\n- ".join(w["achievements"]) + f"""
-
-Technologies: {w['technologies']}
-"""
-
-    # -------------------------
-    # PROJECTS
-    # -------------------------
-    if profile["projects"]:
-
-        text += "\nPROJECTS:\n"
-
-        for p in profile["projects"]:
-
-            text += f"""
-{p['name']}
-
-Description:
-- """ + "\n- ".join(p["description"]) + f"""
-
-Impact:
-- """ + "\n- ".join(p["impact"]) + f"""
-
-Technologies: {p['technologies']}
-"""
-
-    # -------------------------
-    # EDUCATION
-    # -------------------------
-    education = profile["education"]
-
-    if education:
-
-        text += f"""
-
-EDUCATION:
-{education.get('degree', '')} - {education.get('school', '')}
-
-Graduation: {education.get('grad_date', '')}
-
-GPA: {education.get('gpa', '')}
-
-Coursework: {education.get('coursework', '')}
-"""
-
-    # -------------------------
-    # ACTIVITIES
-    # -------------------------
-    if profile["activities"]:
-
-        text += "\nACTIVITIES:\n"
-
-        for a in profile["activities"]:
-
-            text += f"""
-{a['role']} - {a['name']}
-
-- """ + "\n- ".join(a["details"])
-
-    return text
 
 # =========================
 # 🔧 LOAD ENV
@@ -220,6 +92,7 @@ async def on_ready():
 def is_authorized(ctx):
     return ctx.author.id in ALLOWED_USERS
 
+
 # =========================
 # 🧪 TEST COMMAND
 # =========================
@@ -232,6 +105,7 @@ async def ping(ctx):
 
     await ctx.send("pong")
 
+
 # =========================
 # 🚀 MAIN RESUME COMMAND
 # =========================
@@ -242,12 +116,7 @@ async def tailor(ctx, *, job: str):
         await ctx.send("Unauthorized.")
         return
 
-    # =========================
-    # 👤 LOAD USER PROFILE
-    # =========================
-    profile = get_user_profile(ctx.author.id)
-
-    background = build_background(profile)
+    background = "User background placeholder"
 
     await ctx.send("Generating resume... ⏳")
 
@@ -288,6 +157,7 @@ async def tailor(ctx, *, job: str):
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
 
+
 # =========================
 # 📜 HISTORY COMMAND
 # =========================
@@ -313,6 +183,7 @@ async def history(ctx):
         msg += f"{i}. {j['job'][:80]}...\n"
 
     await ctx.send(msg)
+
 
 # =========================
 # 📄 LAST RESUME COMMAND
@@ -342,6 +213,7 @@ async def last(ctx):
         )
     )
 
+
 # =========================
 # 🔁 REGEN COMMAND
 # =========================
@@ -366,13 +238,7 @@ async def regen(ctx, index: int):
         return
 
     selected_job = jobs[index - 1]["job"]
-
-    # =========================
-    # 👤 LOAD USER PROFILE
-    # =========================
-    profile = get_user_profile(ctx.author.id)
-
-    background = build_background(profile)
+    background = "User background placeholder"
 
     await ctx.send(f"Regenerating resume for job #{index}... ⏳")
 
@@ -406,6 +272,7 @@ async def regen(ctx, index: int):
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
+
 
 # =========================
 # 🔍 SEARCH COMMAND
@@ -445,157 +312,108 @@ async def search(ctx, *, keyword: str):
 
     await ctx.send(msg)
 
+
 # =========================
-# 👤 SET PROFILE COMMAND
+# 👤 PROFILE VIEW
 # =========================
 @bot.command()
-async def setprofile(ctx):
+async def profile(ctx):
 
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
         return
 
-    await ctx.send("Let's build your profile. Reply to each prompt.")
+    data = load_data()
+    user_id = str(ctx.author.id)
 
-    def check(m):
-        return m.author == ctx.author and m.channel == ctx.channel
+    profile = get_user_profile(data, user_id)
 
-    try:
+    msg = "**📄 Your Profile**\n\n"
 
-        # =========================
-        # WORK EXPERIENCE
-        # =========================
-        await ctx.send("How many work experiences?")
-        msg = await bot.wait_for("message", check=check)
-        num_work = int(msg.content)
+    msg += "**Work Experience:**\n"
+    if profile["work"]:
+        for w in profile["work"]:
+            msg += f"- {w.get('role','')} @ {w.get('company','')}\n"
+    else:
+        msg += "- None\n"
 
-        work = []
+    msg += "\n**Projects:**\n"
+    if profile["projects"]:
+        for p in profile["projects"]:
+            msg += f"- {p.get('name','')}\n"
+    else:
+        msg += "- None\n"
 
-        for i in range(num_work):
+    msg += "\n**Education:**\n"
+    if profile["education"]:
+        msg += f"- {profile['education'].get('degree','N/A')} @ {profile['education'].get('school','N/A')}\n"
+    else:
+        msg += "- None\n"
 
-            await ctx.send(f"Company #{i+1}:")
-            company = (await bot.wait_for("message", check=check)).content
+    msg += "\n**Activities:**\n"
+    if profile["activities"]:
+        for a in profile["activities"]:
+            msg += f"- {a.get('name','')}\n"
+    else:
+        msg += "- None\n"
 
-            await ctx.send("Role:")
-            role = (await bot.wait_for("message", check=check)).content
+    await ctx.send(msg)
 
-            await ctx.send("Dates:")
-            dates = (await bot.wait_for("message", check=check)).content
 
-            await ctx.send("Responsibilities (comma separated):")
-            responsibilities = (await bot.wait_for("message", check=check)).content.split(",")
+# =========================
+# 🧹 PROFILE CLEAR
+# =========================
+@bot.command()
+async def profileclear(ctx):
 
-            await ctx.send("Achievements (comma separated):")
-            achievements = (await bot.wait_for("message", check=check)).content.split(",")
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
 
-            await ctx.send("Technologies (comma separated):")
-            technologies = (await bot.wait_for("message", check=check)).content
+    data = load_data()
+    user_id = str(ctx.author.id)
 
-            work.append({
-                "company": company,
-                "role": role,
-                "dates": dates,
-                "responsibilities": [r.strip() for r in responsibilities],
-                "achievements": [a.strip() for a in achievements],
-                "technologies": technologies
-            })
-
-        # =========================
-        # PROJECTS
-        # =========================
-        await ctx.send("How many projects?")
-        num_projects = int((await bot.wait_for("message", check=check)).content)
-
-        projects = []
-
-        for i in range(num_projects):
-
-            await ctx.send(f"Project name #{i+1}:")
-            name = (await bot.wait_for("message", check=check)).content
-
-            await ctx.send("Description (comma separated):")
-            description = (await bot.wait_for("message", check=check)).content.split(",")
-
-            await ctx.send("Impact (comma separated):")
-            impact = (await bot.wait_for("message", check=check)).content.split(",")
-
-            await ctx.send("Technologies:")
-            tech = (await bot.wait_for("message", check=check)).content
-
-            projects.append({
-                "name": name,
-                "description": [d.strip() for d in description],
-                "impact": [i.strip() for i in impact],
-                "technologies": tech
-            })
-
-        # =========================
-        # EDUCATION
-        # =========================
-        await ctx.send("School:")
-        school = (await bot.wait_for("message", check=check)).content
-
-        await ctx.send("Degree:")
-        degree = (await bot.wait_for("message", check=check)).content
-
-        await ctx.send("Graduation date:")
-        grad_date = (await bot.wait_for("message", check=check)).content
-
-        await ctx.send("GPA:")
-        gpa = (await bot.wait_for("message", check=check)).content
-
-        await ctx.send("Coursework:")
-        coursework = (await bot.wait_for("message", check=check)).content
-
-        education = {
-            "school": school,
-            "degree": degree,
-            "grad_date": grad_date,
-            "gpa": gpa,
-            "coursework": coursework
+    data[user_id] = {
+        "jobs": [],
+        "profile": {
+            "work": [],
+            "projects": [],
+            "education": {},
+            "activities": []
         }
+    }
 
-        # =========================
-        # ACTIVITIES
-        # =========================
-        await ctx.send("How many activities?")
-        num_activities = int((await bot.wait_for("message", check=check)).content)
+    save_data(data)
 
-        activities = []
+    await ctx.send("🧹 Profile cleared.")
 
-        for i in range(num_activities):
 
-            await ctx.send(f"Activity name #{i+1}:")
-            name = (await bot.wait_for("message", check=check)).content
+# =========================
+# 📊 PROFILE SUMMARY
+# =========================
+@bot.command()
+async def profilesummary(ctx):
 
-            await ctx.send("Role:")
-            role = (await bot.wait_for("message", check=check)).content
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
 
-            await ctx.send("Details (comma separated):")
-            details = (await bot.wait_for("message", check=check)).content.split(",")
+    data = load_data()
+    user_id = str(ctx.author.id)
 
-            activities.append({
-                "name": name,
-                "role": role,
-                "details": [d.strip() for d in details]
-            })
+    profile = get_user_profile(data, user_id)
 
-        # =========================
-        # SAVE PROFILE
-        # =========================
-        profile = {
-            "work": work,
-            "projects": projects,
-            "education": education,
-            "activities": activities
-        }
+    summary = f"""
+PROFILE SUMMARY:
 
-        save_user_profile(ctx.author.id, profile)
+Work Experience: {len(profile['work'])}
+Projects: {len(profile['projects'])}
+Education: {'Yes' if profile['education'] else 'No'}
+Activities: {len(profile['activities'])}
+"""
 
-        await ctx.send("✅ Profile saved successfully!")
+    await ctx.send(summary)
 
-    except Exception as e:
-        await ctx.send(f"❌ Error building profile: {str(e)}")
 
 # =========================
 # ▶️ RUN BOT

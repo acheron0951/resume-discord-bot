@@ -1,19 +1,54 @@
 {
     "104808415020261376": {
-
         "profile": {
-
-            "work": [],
-
-            "projects": [],
-
-            "education": {},
-
-            "activities": []
-
+            "work": [
+                {
+                    "company": "OpenAI",
+                    "role": "Backend Engineer",
+                    "dates": "2023 - Present",
+                    "responsibilities": [
+                        "Built APIs",
+                        "Optimized databases",
+                        "Designed systems"
+                    ],
+                    "achievements": [
+                        "Reduced latency 40%",
+                        "Scaled system to 1M users"
+                    ],
+                    "technologies": "Python, FastAPI, Postgres, Redis"
+                }
+            ],
+            "projects": [
+                {
+                    "name": "Resume AI Tool",
+                    "description": [
+                        "Built AI resume generator",
+                        "ATS optimization engine"
+                    ],
+                    "impact": [
+                        "Improved job match rate",
+                        "Reduced editing time"
+                    ],
+                    "technologies": "Python, OpenAI API"
+                }
+            ],
+            "education": {
+                "school": "University of California, San Diego",
+                "degree": "Bachelor's of Arts in Economics",
+                "grad_date": "2020",
+                "gpa": "N/A",
+                "coursework": "Econometrics, Statistics"
+            },
+            "activities": [
+                {
+                    "name": "- CompTIA A+ Certification",
+                    "role": "Certification Holder",
+                    "details": [
+                        "N/A"
+                    ]
+                }
+            ]
         },
-
         "jobs": []
-
     }
 }
