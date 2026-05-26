@@ -96,6 +96,90 @@ Result is stored + returned to user
 
 ---
 
+## 📘 How to Format Job Descriptions
+
+To get the best results from `!tailor`, you should format job descriptions before sending them.
+
+This improves:
+- Resume quality
+- ATS keyword matching
+- Accuracy of generated resumes
+
+---
+
+## 📥 Step 1 — Copy Job Description
+
+Copy the full job description from:
+- Indeed
+- LinkedIn
+- Company career pages
+
+---
+
+## 🧠 Step 2 — Format Using ChatGPT
+
+Paste the job description into ChatGPT using this prompt:
+
+```text
+Format this job description into a structured resume input.
+
+Rules:
+- Extract only key responsibilities and skills
+- Remove salary, benefits, and marketing language
+- Use bullet points only
+- Keep it concise and ATS-friendly
+
+Return format:
+
+<Job Title> – <Company>
+
+Responsibilities:
+- bullet points
+
+Skills:
+- bullet points
+
+Preferred:
+- bullet points (if applicable)
+
+Here is the job description:
+[PASTE HERE]
+```
+
+---
+
+## 🚀 STEP 3 — USE WITH BOT
+
+Take the formatted result and run:
+
+```bash
+!tailor <FORMATTED JOB DESCRIPTION>
+```
+
+---
+
+## 💡 EXAMPLE
+
+Level 1 Technical Support Technician – Company
+
+**Responsibilities:**
+- Respond to support requests via ticketing system
+- Troubleshoot Windows and Microsoft 365 issues
+- Manage user accounts and access
+- Escalate complex issues
+
+**Skills:**
+- Windows OS
+- Microsoft 365
+- Networking fundamentals (DNS, DHCP, IP)
+
+**Preferred:**
+- MSP/help desk experience
+- ConnectWise / Autotask
+- CompTIA A+
+
+---
+
 ## 📁 Project Structure
 
 resume-discord-bot/
