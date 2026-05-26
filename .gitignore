@@ -3,6 +3,7 @@
 
 # Python virtual environment
 venv/
+.venv/
 
 # Python cache files
 __pycache__/
@@ -11,3 +12,5 @@ __pycache__/
 # IDE files (optional but recommended)
 .idea/
 .vscode/
+
+data.json

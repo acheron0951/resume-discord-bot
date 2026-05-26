@@ -1,54 +1,110 @@
 {
+    "config": {
+        "allowed_users": [
+            104808415020261376,
+            99267424007753728
+        ]
+    },
     "104808415020261376": {
+        "jobs": [
+            {
+                "job": "Level 1 Technical Support Technician \u2013 All-Access Infotech\n\nResponsibilities:\n- Respond to support requests via phone, email, and ticketing systems\n- Troubleshoot Windows workstations, Microsoft 365, email, printers, and software issues\n- Perform password resets and user account support\n- Diagnose basic network issues (IP, DNS, DHCP, Wi-Fi, VPN)\n- Use remote tools to resolve technical issues\n- Document tickets clearly with troubleshooting steps and resolutions\n- Manage and prioritize multiple tickets\n- Escalate complex issues to higher-level support\n\nSkills:\n- Windows operating systems\n- Microsoft 365\n- Hardware and software troubleshooting\n- Networking fundamentals (DNS, DHCP, IP)\n- Strong communication skills\n- Ticketing/documentation systems\n\nPreferred:\n- Help desk or MSP experience\n- Experience with tools like ConnectWise or Autotask\n- CompTIA A+ or similar certification",
+                "resume": "1) Tailored Resume\n\nName Lastname\nCity, ST \u2022 email@example.com \u2022 (555) 555-5555 \u2022 linkedin.com/in/namelastname\n\nProfessional Summary\nA+ certified Level 1 Help Desk Technician with experience in 24x7, high-uptime environments. Strong with Windows 10/11, Microsoft 365 (Outlook/Teams/OneDrive), Active Directory user administration, printers/MFPs, and basic networking (IP/DNS/DHCP, Wi-Fi/VPN). Proven ticket triage, prioritization, remote support, and clear documentation aligned to ITIL-style incident workflows. MSP-ready; experienced with ServicePro and adaptable to common MSP PSA/RMM tools and processes. Available for full-time L1 Help Desk roles (on-site or remote).\n\nCore Skills\n- End-User Support: Windows 10/11; Microsoft 365 (Outlook, Teams, OneDrive); software installs/updates; profile repairs; email troubleshooting; password resets\n- Identity/Access & File Services: Active Directory (users, groups, permissions), file share access, secure terminations, least-privilege practices\n- Remote/Hardware/Print: Microsoft Remote Desktop; desktops/laptops/peripherals; printers/MFPs (drivers, print queues, scan-to-email)\n- Networking Basics: IP configuration, DNS/DHCP checks, Wi-Fi/VPN connectivity, ping/tracert; appropriate escalation when beyond L1 scope\n- Service Delivery: Ticket triage by impact/urgency; time entry and notes; documentation and quick guides; knowledge base contributions; customer communication\n- Tools: ServicePro ticketing; Microsoft 365 apps; Microsoft Remote Desktop; Excel; SQL Server (basic reporting); familiar with ConnectWise/Autotask concepts; VPN clients; printer drivers\n\nSelected Ticket Scenarios\n- Outlook profile rebuilds, mailbox access issues, and OneDrive sync repairs to restore email and file access\n- VPN/Wi-Fi connectivity troubleshooting (IP/DNS/DHCP checks) to re-establish remote access\n- Printer/MFP deployments and queue remediations, including scan-to-email configuration\n\nExperience\nPC/LAN Technician (Contract) \u2014 Sycuan Casino Resort, El Cajon, CA\nJuly 2024 - November 2024\n- Triaged and resolved Level 1 incidents/requests in ServicePro, prioritizing by impact and urgency to improve response times and reduce backlog in a high-uptime casino environment.\n- Supported Windows 10/11 and Microsoft 365 (Outlook/Teams/OneDrive); performed software installs/updates and profile repairs to restore productivity.\n- Administered AD user accounts and groups; granted file share access and executed secure terminations per procedure.\n- Delivered remote and deskside support using Microsoft Remote Desktop; diagnosed desktops, laptops, phones, and peripherals.\n- Deployed and troubleshot printers/MFPs, drivers, and print queues; resolved scan-to-email and network print issues.\n- Performed L1 networking checks (IP config, DNS/DHCP, Wi-Fi/VPN) and escalated appropriately with detailed notes.\n- Authored quick guides and delivered user trainings; produced Excel reports from SQL Server extracts to support operations.\n- Result: Reduced ticket backlog and improved response times; increased visibility for events through reporting.\n\nTechnical Support Associate (Overnight, Contract) \u2014 The Home Depot, San Diego, CA\nApril 2024 - May 2024\n- Provided overnight endpoint and peripheral support for inventory and delivery systems to sustain store operations.\n- Diagnosed and resolved hardware/software issues and performed maintenance to maintain system uptime.\n- Reconciled data using Excel and internal inventory systems to improve accuracy.\n\nAdditional Experience (Part-time)\nPersonal Trainer & Operations \u2014 YMCA of San Diego, San Diego, CA\nNovember 2024 - Present\n- Coordinated vendor deliveries and equipment upgrades with minimal disruption to members.\n- Created training materials and coached users; reinforced safety, clear communication, and documentation habits.\n\nProjects\nOpenAI Resume Tailor (Python)\n- Built a CLI-driven pipeline to analyze job descriptions and generate tailored resumes with structured outputs.\n- Reduced manual customization effort and improved ATS alignment through targeted keyword matching and consistent formatting.\n\nEducation & Certifications\n- BA, Economics \u2014 University of California, San Diego (2020)\n- CompTIA A+ Certification\n\n2) Keywords (ATS-friendly)\n- Level 1 Help Desk\n- Service Desk\n- Windows 10\n- Windows 11\n- Microsoft 365\n- Outlook\n- Teams\n- OneDrive\n- Active Directory\n- AD users and groups\n- File share access\n- Password resets\n- Profile repairs\n- Printers\n- MFPs\n- Printer drivers\n- Print queues\n- Scan-to-email\n- Microsoft Remote Desktop\n- Remote support\n- VPN\n- Wi-Fi\n- DNS\n- DHCP\n- IP configuration\n- Ping\n- Tracert\n- Ticketing system\n- ServicePro\n- Ticket triage\n- Prioritization\n- Escalation\n- Documentation\n- Knowledge base\n- ITIL incident workflows\n- Customer communication\n- Excel\n- SQL Server\n- MSP\n- PSA\n- RMM (familiarity)\n- ConnectWise (concepts)\n- Autotask (concepts)\n\n3) Missing Skills\n- Must-have gaps\n  - Hands-on experience with MSP PSA/RMM platforms (e.g., ConnectWise Manage/Control, Autotask, RMM agents)\n  - Deeper Microsoft 365/Azure AD admin (shared mailboxes, distribution groups, mailbox permissions, MFA enforcement)\n  - Phone/call queue experience with metrics (calls per day, FCR, SLA/CSAT reporting)\n\n- Nice-to-have gaps\n  - Endpoint management/imaging (Intune/Autopilot/SCCM)\n  - Basic macOS/iOS support and MDM exposure (Intune/Jamf)\n  - PowerShell scripting for L1 automation\n  - VoIP/Teams Phone basics (call queues, voicemail resets)\n  - ITIL Foundation certification\n  - Advanced networking concepts (VLANs, firewalls) beyond L1 basics",
+                "timestamp": "2026-05-26T01:49:17.675364"
+            },
+            {
+                "job": "Level 1 Technical Support Technician \u2013 All-Access Infotech\n\nResponsibilities:\n- Respond to support requests via phone, email, and ticketing systems\n- Troubleshoot Windows workstations, Microsoft 365, email, printers, and software issues\n- Perform password resets and user account support\n- Diagnose basic network issues (IP, DNS, DHCP, Wi-Fi, VPN)\n- Use remote tools to resolve technical issues\n- Document tickets clearly with troubleshooting steps and resolutions\n- Manage and prioritize multiple tickets\n- Escalate complex issues to higher-level support\n\nSkills:\n- Windows operating systems\n- Microsoft 365\n- Hardware and software troubleshooting\n- Networking fundamentals (DNS, DHCP, IP)\n- Strong communication skills\n- Ticketing/documentation systems\n\nPreferred:\n- Help desk or MSP experience\n- Experience with tools like ConnectWise or Autotask\n- CompTIA A+ or similar certification",
+                "resume": "1) Tailored Resume\n\nName Lastname\nCity, ST \u2022 phone \u2022 email \u2022 linkedin.com/in/yourname \u2022 github.com/yourhandle\n\nProfessional Summary\nA+ certified IT Support Specialist (Level 1) with hands-on Windows 10/11 and Microsoft 365 support, Active Directory user administration, printer/MFP troubleshooting, and remote assistance in high-uptime, SLA-driven environments. Strong in ticket triage, documentation, and clear customer communication; comfortable with DNS/DHCP/IP fundamentals, VPN/Wi\u2011Fi connectivity, and endpoint diagnostics. Adaptable to MSP workflows and tools (ConnectWise/Autotask familiarity) and used to fast-paced, multi-ticket contexts. Willing to work shifts/after-hours typical for MSPs.\n\nCore Skills\n- Windows/Microsoft 365: Windows 10/11; Outlook, Teams, OneDrive; software installs/updates; profile repairs\n- Identity/Access: Active Directory users, groups, permissions; password resets; file share access\n- Remote Support: Microsoft Remote Desktop; Quick Assist (familiar); ConnectWise Control/ScreenConnect (familiar)\n- Networking: IP addressing; DNS/DHCP checks; VPN/Wi\u2011Fi connectivity; ipconfig/ping/tracert\n- Printers/MFPs: Drivers, queues, scan-to-email; network printing issues\n- Hardware/Software: Desktops, laptops, phones, peripherals; imaging/installs; endpoint diagnostics\n- Ticketing/Documentation: ServicePro; incident triage, prioritization, escalation; KB/quick guides; SLA focus; phone/email support (familiar)\n- MSP Readiness: Multi-tenant mindset; ticket hygiene; FCR focus; clear escalations; context switching\n- Reporting/Tools: Excel; SQL Server (data extracts/reporting)\n- Certifications: CompTIA A+\n\nExperience\nPC/LAN Technician (Contract) \u2014 Sycuan Casino Resort | Jul 2024 \u2013 Nov 2024\n- Managed a high-volume ServicePro queue in a 24/7, high-uptime environment; prioritized to SLAs and documented clear troubleshooting steps and resolutions.\n- Resolved Windows 10/11 and Microsoft 365 issues (Outlook/Teams/OneDrive); performed software installs/updates and profile repairs.\n- Administered AD user accounts, groups, and permissions; processed password resets and file share access requests per approvals.\n- Provided remote and deskside support via Microsoft Remote Desktop; diagnosed endpoint hardware/peripheral issues.\n- Deployed and troubleshot printers/MFPs, drivers, and print queues; resolved scan-to-email and network printing issues.\n- Performed basic network diagnostics (IP configuration, DNS/DHCP checks, VPN/Wi\u2011Fi connectivity; ipconfig/ping/tracert).\n- Authored quick guides/KBs and delivered user trainings; produced Excel reports from SQL Server extracts to support events/operations.\n- Tools: ServicePro, Windows 10/11, Microsoft 365, Active Directory, Microsoft Remote Desktop, Printers/MFPs, Excel, SQL Server, Networking fundamentals\n\nTechnical Support Associate (Seasonal/Overnight) \u2014 The Home Depot | Apr 2024 \u2013 May 2024\n- Provided overnight IT support for inventory/delivery systems to sustain store operations during off-hours.\n- Diagnosed endpoint and peripheral issues; executed fixes and maintenance under tight time constraints.\n- Supported associates through the ticket queue and remote sessions; documented steps and outcomes for continuity.\n- Utilized Excel and internal systems for data reconciliation and stock tracking.\n- Tools: Windows systems, Inventory/Delivery systems, Excel, Remote support\n\nPersonal Trainer & Fitness Coach (Supplemental Experience) \u2014 YMCA of San Diego | Nov 2024 \u2013 Present\n- Coordinated vendor equipment upgrades and aligned deliveries with facility schedules to minimize downtime.\n- Created training materials and coached users; maintained documentation and safety readiness.\n- Managed scheduling systems and communications to support daily operations.\n- Tools: Scheduling systems, Documentation, Training materials\n\nProjects\n- OpenAI Resume Tailor \u2014 Python, OpenAI API, CLI, JSON, Async: Automated JD analysis and ATS-aligned resume tailoring with a structured, documented pipeline.\n- Professional Development & Labs (2020\u20132024): Self-directed A+ preparation; Windows 10/11 and Microsoft 365 practice; basic AD user management in lab settings; ongoing familiarity with ConnectWise/Autotask training modules.\n\nEducation\nBA, Economics \u2014 University of California, San Diego\n\nCertifications\nCompTIA A+\n\n2) Keywords (ATS-friendly)\n- IT Support\n- Help Desk\n- Level 1\n- Windows 10/11\n- Microsoft 365\n- Outlook\n- Teams\n- OneDrive\n- Exchange Online\n- Active Directory\n- Users/Groups/Permissions\n- Password resets\n- File share access\n- Remote Desktop\n- Microsoft Remote Desktop\n- Quick Assist\n- ConnectWise Control (familiar)\n- ServicePro\n- Ticketing\n- Incident management\n- Triage\n- Prioritization\n- Escalation\n- SLA\n- Documentation\n- Knowledge base\n- Printers\n- MFP\n- Drivers\n- Print queues\n- Scan-to-email\n- Networking\n- DNS\n- DHCP\n- IP\n- VPN\n- Wi\u2011Fi\n- ipconfig\n- ping\n- tracert\n- Hardware troubleshooting\n- Imaging/installs\n- Customer service\n- High-uptime\n- 24/7 operations\n- Excel\n- SQL Server\n- MSP\n- Multi-tenant\n- CompTIA A+\n\n3) Missing Skills\n- Must-have gaps\n  - Direct, hands-on experience with MSP stacks (ConnectWise/Autotask ticketing/RMM) beyond familiarity.\n  - Concrete phone support metrics and queue KPIs (tickets/day, FCR, SLA %).\n  - Imaging/deployment tools common to MSPs (Intune/Autopilot, MDT/SCCM) in production environments.\n\n- Nice-to-have gaps\n  - PowerShell scripting/automation; basic scripting for user/account/report tasks.\n  - Azure AD/Entra ID administration; Microsoft Intune/Endpoint Manager; MDM.\n  - MacOS support and common MDMs (Jamf) if client base includes Macs.\n  - Advanced networking (VLANs, routing, firewall policies, VPN concentrators); Wi\u2011Fi controllers.\n  - RMM/AV tools (e.g., SentinelOne, CrowdStrike, Huntress, Webroot); backup solutions.\n  - VoIP/telephony support; printer fleet management tools.\n  - ITIL Foundation; additional certs (CompTIA Network+, MS-900/MD-102).",
+                "timestamp": "2026-05-26T01:59:05.685972"
+            }
+        ],
         "profile": {
             "work": [
                 {
-                    "company": "OpenAI",
-                    "role": "Backend Engineer",
-                    "dates": "2023 - Present",
+                    "company": "Sycuan Casino Resort",
+                    "role": "PC/LAN Technician",
+                    "dates": "July 2024 - November 2024",
                     "responsibilities": [
-                        "Built APIs",
-                        "Optimized databases",
-                        "Designed systems"
+                        "Managed and triaged incidents/requests via ServicePro, prioritizing tickets to improve response times and reduce backlog in a high\u2011uptime casino environment.",
+                        "Resolved Windows 10/11, Microsoft 365 (Outlook/Teams/OneDrive), and desktop application issues; performed software installs/updates and profile repairs.",
+                        "Administered user accounts, groups, and access permissions in Active Directory; assisted with file share access requests and terminations.",
+                        "Delivered remote and deskside support using Microsoft Remote Desktop; diagnosed hardware faults for desktops, laptops, phones, and peripherals.",
+                        "Deployed and troubleshot printers/MFPs, drivers, and print queues; addressed scan\u2011to\u2011email and network print issues.",
+                        "Performed basic network diagnostics (IP configuration, DNS/DHCP checks, VPN/Wi\u2011Fi connectivity).",
+                        "Produced Excel reports with SQL Server data extracts for events and operations; authored quick guides and delivered user trainings on new tools."
                     ],
                     "achievements": [
-                        "Reduced latency 40%",
-                        "Scaled system to 1M users"
+                        "Reduced ticket backlog and improved response times by prioritizing high-impact incidents in a high-uptime support environment.",
+                        "Developed Excel reports using SQL Server data extracts to support event operations and improve decision-making visibility."
                     ],
-                    "technologies": "Python, FastAPI, Postgres, Redis"
+                    "technologies": "ServicePro, Windows 10/11, Microsoft 365 (Outlook, Teams, OneDrive), Active Directory, Microsoft Remote Desktop, SQL Server, Excel, Networking (DNS, DHCP, VPN, Wi-Fi), Printers/MFPs"
+                },
+                {
+                    "company": "YMCA of San Diego",
+                    "role": "Personal Trainer and Fitness Coach",
+                    "dates": "November 2024 - Present",
+                    "responsibilities": [
+                        "Coordinated cardio equipment upgrades and aligned vendor deliveries with facility schedules.",
+                        "Ensured equipment readiness and safety for daily operations.",
+                        "Created training materials and coached users on proper equipment use.",
+                        "Managed scheduling systems and documentation to support operations and communication."
+                    ],
+                    "achievements": [
+                        "Coordinated a one-week cardio equipment upgrade with minimal disruption to facility operations.",
+                        "Improved user safety and equipment utilization by providing training and clear usage guidance."
+                    ],
+                    "technologies": "Scheduling Systems, Fitness Equipment, Vendor Coordination, Documentation, Training Materials"
+                },
+                {
+                    "company": "The Home Depot",
+                    "role": "Technical Support Associate",
+                    "dates": "April 2024 - May 2024",
+                    "responsibilities": [
+                        "Provided overnight IT support for inventory and delivery systems to sustain store operations during off-hours.",
+                        "Diagnosed hardware and software issues on endpoints and peripherals.",
+                        "Executed fixes and maintenance to ensure system functionality.",
+                        "Utilized inventory systems and Excel for data reconciliation and stock tracking."
+                    ],
+                    "achievements": [
+                        "Maintained system uptime during overnight operations by resolving critical IT issues in a time-sensitive environment.",
+                        "Improved inventory accuracy through data reconciliation using Excel and internal systems."
+                    ],
+                    "technologies": "Windows Systems, Inventory Management Systems, Excel, Hardware Troubleshooting, IT Support Tools"
                 }
             ],
             "projects": [
                 {
-                    "name": "Resume AI Tool",
+                    "name": "OpenAI Resume Tailor",
                     "description": [
-                        "Built AI resume generator",
-                        "ATS optimization engine"
+                        "Built a modular, CLI\u2011driven pipeline to analyze job descriptions and generate tailored resumes, reducing manual customization effort.",
+                        "Implemented multi\u2011stage workflow (JD analysis, strategy generation, resume build, critique) with structured outputs and versioned artifacts.",
+                        "Emphasized maintainability and ATS alignment through consistent formatting and targeted keyword matching."
                     ],
                     "impact": [
-                        "Improved job match rate",
-                        "Reduced editing time"
+                        "Reduced resume customization time by automating job description analysis and resume tailoring workflow.",
+                        "Improved alignment with ATS systems through structured keyword matching and consistent formatting.",
+                        "Enhanced resume quality by introducing a multi-stage pipeline with analysis, strategy, and critique steps."
                     ],
-                    "technologies": "Python, OpenAI API"
+                    "technologies": "Python, OpenAI API, CLI, JSON, Prompt Engineering, Async Processing, Git"
                 }
             ],
             "education": {
                 "school": "University of California, San Diego",
-                "degree": "Bachelor's of Arts in Economics",
-                "grad_date": "2020",
+                "degree": "Bachelor of Arts in Economics",
+                "grad_date": "June 2020",
                 "gpa": "N/A",
-                "coursework": "Econometrics, Statistics"
+                "coursework": "Econometrics, Statistics, Data Analysis, Regression Analysis, Quantitative Methods, Data Interpretation"
             },
             "activities": [
                 {
-                    "name": "- CompTIA A+ Certification",
+                    "name": "CompTIA A+ Certification Holder",
                     "role": "Certification Holder",
                     "details": [
-                        "N/A"
+                        "Earned CompTIA A+ certification covering hardware, networking, operating systems, and troubleshooting fundamentals.",
+                        "Applied certification knowledge to real-world IT support tasks including system diagnostics, user support, and issue resolution."
                     ]
                 }
             ]
-        },
-        "jobs": []
+        }
     }
 }

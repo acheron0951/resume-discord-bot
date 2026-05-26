@@ -44,6 +44,95 @@ def get_user_profile(data, user_id):
     return data[user_id]["profile"]
 
 
+def get_allowed_users(data):
+    if "config" not in data:
+        data["config"] = {"allowed_users": []}
+
+    if "allowed_users" not in data["config"]:
+        data["config"]["allowed_users"] = []
+
+    return set(data["config"]["allowed_users"])
+
+
+def build_background_from_profile(profile):
+    text = ""
+
+    # Work Experience
+    if profile["work"]:
+        text += "\nWORK EXPERIENCE:\n"
+        for w in profile["work"]:
+            text += f"""
+{w.get('role','')} - {w.get('company','')} ({w.get('dates','')})
+
+Responsibilities:
+- """ + "\n- ".join(w.get("responsibilities", [])) + f"""
+
+Achievements:
+- """ + "\n- ".join(w.get("achievements", [])) + f"""
+
+Technologies: {w.get('technologies','')}
+"""
+
+    # Projects
+    if profile["projects"]:
+        text += "\nPROJECTS:\n"
+        for p in profile["projects"]:
+            text += f"""
+{p.get('name','')}
+
+Description:
+- """ + "\n- ".join(p.get("description", [])) + f"""
+
+Impact:
+- """ + "\n- ".join(p.get("impact", [])) + f"""
+
+Technologies: {p.get('technologies','')}
+"""
+
+    # Education
+    if profile["education"]:
+        edu = profile["education"]
+        text += f"""
+
+EDUCATION:
+{edu.get('degree','')} - {edu.get('school','')} ({edu.get('grad_date','')})
+
+GPA: {edu.get('gpa','')}
+Coursework: {edu.get('coursework','')}
+"""
+
+    # Activities
+    if profile["activities"]:
+        text += "\nACTIVITIES:\n"
+        for a in profile["activities"]:
+            text += f"""
+{a.get('role','')} - {a.get('name','')}
+
+- """ + "\n- ".join(a.get("details", []))
+
+    return text if text.strip() else "No background provided."
+
+
+# =========================
+# 🧩 INPUT HELPERS
+# =========================
+async def collect_list(ctx, bot, check, prompt):
+    await ctx.send(f"{prompt} (type END when done):")
+
+    items = []
+
+    while True:
+        msg = await bot.wait_for("message", check=check)
+        content = msg.content.strip()
+
+        if content.upper() == "END":
+            break
+
+        items.append(content)
+
+    return items
+
+
 # =========================
 # 🔧 LOAD ENV
 # =========================
@@ -90,7 +179,9 @@ async def on_ready():
 # 🔐 ACCESS CHECK HELPER
 # =========================
 def is_authorized(ctx):
-    return ctx.author.id in ALLOWED_USERS
+    data = load_data()
+    allowed_users = get_allowed_users(data)
+    return ctx.author.id in allowed_users
 
 
 # =========================
@@ -107,6 +198,45 @@ async def ping(ctx):
 
 
 # =========================
+# 🛡️ ACCESS CONTROL (ADMIN)
+# =========================
+@bot.command()
+async def adduser(ctx, user_id: int):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    data = load_data()
+
+    if "config" not in data:
+        data["config"] = {"allowed_users": []}
+
+    if user_id not in data["config"]["allowed_users"]:
+        data["config"]["allowed_users"].append(user_id)
+
+    save_data(data)
+
+    await ctx.send(f"Added user {user_id}")
+
+@bot.command()
+async def removeuser(ctx, user_id: int):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    data = load_data()
+
+    if "config" in data and user_id in data["config"]["allowed_users"]:
+        data["config"]["allowed_users"].remove(user_id)
+
+    save_data(data)
+
+    await ctx.send(f"Removed user {user_id}")
+
+
+# =========================
 # 🚀 MAIN RESUME COMMAND
 # =========================
 @bot.command()
@@ -116,7 +246,11 @@ async def tailor(ctx, *, job: str):
         await ctx.send("Unauthorized.")
         return
 
-    background = "User background placeholder"
+    data = load_data()
+    user_id = str(ctx.author.id)
+
+    profile = get_user_profile(data, user_id)
+    background = build_background_from_profile(profile)
 
     await ctx.send("Generating resume... ⏳")
 
@@ -238,7 +372,10 @@ async def regen(ctx, index: int):
         return
 
     selected_job = jobs[index - 1]["job"]
-    background = "User background placeholder"
+
+    # ✅ FIX: Use stored profile instead of placeholder
+    profile = get_user_profile(data, user_id)
+    background = build_background_from_profile(profile)
 
     await ctx.send(f"Regenerating resume for job #{index}... ⏳")
 
@@ -262,6 +399,7 @@ async def regen(ctx, index: int):
             )
         )
 
+        # Save regenerated version
         jobs.append({
             "job": selected_job,
             "resume": final_resume,
@@ -413,6 +551,163 @@ Activities: {len(profile['activities'])}
 """
 
     await ctx.send(summary)
+
+# =========================
+# 🧾 PROFILE INPUT (GUIDED)
+# =========================
+@bot.command()
+async def setprofile(ctx):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    await ctx.send("Let's build your profile. Reply to each prompt.")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    data = load_data()
+    user_id = str(ctx.author.id)
+
+    profile = {
+        "work": [],
+        "projects": [],
+        "education": {},
+        "activities": []
+    }
+
+    # -------------------------
+    # WORK EXPERIENCE
+    # -------------------------
+    await ctx.send("How many work experiences?")
+    msg = await bot.wait_for("message", check=check)
+    try:
+        num_work = int(msg.content)
+    except ValueError:
+        await ctx.send("Please enter a valid number.")
+        return
+
+    for i in range(num_work):
+        await ctx.send(f"Company #{i + 1}:")
+        company = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Role:")
+        role = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Dates:")
+        dates = (await bot.wait_for("message", check=check)).content
+
+        responsibilities = await collect_list(
+            ctx, bot, check, "Enter responsibilities"
+        )
+
+        achievements = await collect_list(
+            ctx, bot, check, "Enter achievements"
+        )
+
+        await ctx.send("Technologies (comma separated):")
+        technologies = (await bot.wait_for("message", check=check)).content.strip()
+
+        profile["work"].append({
+            "company": company,
+            "role": role,
+            "dates": dates,
+            "responsibilities": responsibilities,
+            "achievements": achievements,
+            "technologies": technologies
+        })
+
+    # -------------------------
+    # PROJECTS
+    # -------------------------
+    await ctx.send("How many projects?")
+    msg = await bot.wait_for("message", check=check)
+    num_projects = int(msg.content)
+
+    for i in range(num_projects):
+        await ctx.send(f"Project name #{i + 1}:")
+        name = (await bot.wait_for("message", check=check)).content
+
+        description = await collect_list(
+            ctx, bot, check, "Enter project description"
+        )
+
+        impact = await collect_list(
+            ctx, bot, check, "Enter project impact"
+        )
+
+        await ctx.send("Technologies:")
+        technologies = (await bot.wait_for("message", check=check)).content.strip()
+
+        profile["projects"].append({
+            "name": name,
+            "description": description,
+            "impact": impact,
+            "technologies": technologies
+        })
+
+    # -------------------------
+    # EDUCATION
+    # -------------------------
+    await ctx.send("School:")
+    school = (await bot.wait_for("message", check=check)).content
+
+    await ctx.send("Degree:")
+    degree = (await bot.wait_for("message", check=check)).content
+
+    await ctx.send("Graduation date:")
+    grad_date = (await bot.wait_for("message", check=check)).content
+
+    await ctx.send("GPA:")
+    gpa = (await bot.wait_for("message", check=check)).content
+
+    await ctx.send("Coursework:")
+    coursework = (await bot.wait_for("message", check=check)).content
+
+    profile["education"] = {
+        "school": school,
+        "degree": degree,
+        "grad_date": grad_date,
+        "gpa": gpa,
+        "coursework": coursework
+    }
+
+    # -------------------------
+    # ACTIVITIES
+    # -------------------------
+    await ctx.send("How many activities?")
+    msg = await bot.wait_for("message", check=check)
+    num_activities = int(msg.content)
+
+    for i in range(num_activities):
+        await ctx.send(f"Activity name #{i + 1}:")
+        name = (await bot.wait_for("message", check=check)).content
+
+        await ctx.send("Role:")
+        role = (await bot.wait_for("message", check=check)).content
+
+        details = await collect_list(
+            ctx, bot, check, "Enter activity details"
+        )
+
+        profile["activities"].append({
+            "name": name,
+            "role": role,
+            "details": details
+        })
+
+    # -------------------------
+    # SAVE PROFILE
+    # -------------------------
+    if user_id not in data:
+        data[user_id] = {"jobs": []}
+
+    data[user_id]["profile"] = profile
+
+    save_data(data)
+
+    await ctx.send("✅ Profile saved successfully!")
 
 
 # =========================
