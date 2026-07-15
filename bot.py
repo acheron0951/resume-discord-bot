@@ -291,6 +291,96 @@ async def tailor(ctx, *, job: str):
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
 
+# =========================
+# 🌍 UNIVERSAL RESUME COMMAND
+# =========================
+@bot.command()
+async def tailorbatch(ctx):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    await ctx.send(
+        "Paste your first formatted job description.\n\n"
+        "Type ENDJOB when finished.\n"
+        "Type DONE when you have entered all jobs."
+    )
+
+    def check(m):
+        return (
+                m.author == ctx.author
+                and m.channel == ctx.channel
+        )
+
+    jobs = []
+
+    while True:
+
+        msg = await bot.wait_for(
+            "message",
+            check=check
+        )
+
+        content = msg.content.strip()
+
+        if content.upper() == "DONE":
+            break
+
+        jobs.append(content)
+
+        await ctx.send(
+            f"✅ Job #{len(jobs)} saved.\n"
+            "Paste another job description or type DONE."
+        )
+
+    data = load_data()
+    user_id = str(ctx.author.id)
+
+    profile = get_user_profile(data, user_id)
+    background = build_background_from_profile(profile)
+
+    await ctx.send("Generating universal resume... ⏳")
+
+    try:
+
+        async with ctx.typing():
+
+            result = await asyncio.to_thread(
+                pipeline.run_universal,
+                background,
+                jobs
+            )
+
+        universal_resume = result["resume"]
+
+        data = load_data()
+        user_id = str(ctx.author.id)
+
+        if user_id not in data:
+            data[user_id] = {"jobs": []}
+
+        data[user_id]["jobs"].append({
+            "job": f"Universal Resume ({len(jobs)} jobs)",
+            "resume": universal_resume,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        save_data(data)
+
+        file_buffer = io.BytesIO(
+            universal_resume.encode("utf-8")
+        )
+
+        await ctx.send(
+            file=discord.File(
+                fp=file_buffer,
+                filename=f"user_{ctx.author.id}_universal_resume.txt"
+            )
+        )
+
+    except Exception as e:
+        await ctx.send(f"❌ Error: {str(e)}")
 
 # =========================
 # 📜 HISTORY COMMAND
