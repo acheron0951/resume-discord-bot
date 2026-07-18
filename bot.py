@@ -44,6 +44,40 @@ def get_user_profile(data, user_id):
     return data[user_id]["profile"]
 
 
+def get_profiles(data):
+
+    if "profiles" not in data:
+        data["profiles"] = {}
+
+    return data["profiles"]
+
+
+def get_active_profile(data):
+
+    profiles = get_profiles(data)
+
+    if "active_profile" not in data:
+
+        if profiles:
+            data["active_profile"] = next(iter(profiles))
+        else:
+            data["active_profile"] = None
+
+    return data["active_profile"]
+
+
+def load_active_profile(data):
+
+    active = get_active_profile(data)
+
+    if active is None:
+        return None
+
+    profiles = get_profiles(data)
+
+    return profiles.get(active)
+
+
 def get_allowed_users(data):
     if "config" not in data:
         data["config"] = {"allowed_users": []}
@@ -114,6 +148,29 @@ Coursework: {edu.get('coursework','')}
 
 
 # =========================
+# 🧠 BOT CONTEXT
+# =========================
+class BotContext:
+    def __init__(self):
+        self.data = load_data()
+        self.profiles = get_profiles(self.data)
+        self.active_profile_name = get_active_profile(self.data)
+        self.profile = load_active_profile(self.data)
+
+        self.background = (
+            build_background_from_profile(self.profile)
+            if self.profile is not None
+            else None
+        )
+
+    def has_profile(self):
+        return self.profile is not None
+
+    def save(self):
+        save_data(self.data)
+
+
+# =========================
 # 🧩 INPUT HELPERS
 # =========================
 async def collect_list(ctx, bot, check, prompt):
@@ -131,6 +188,31 @@ async def collect_list(ctx, bot, check, prompt):
         items.append(content)
 
     return items
+
+
+# =========================
+# 📎 MESSAGE TEXT HELPER
+# =========================
+async def get_message_text(message):
+    content = message.content.strip()
+
+    if content:
+        return content
+
+    if not message.attachments:
+        return None
+
+    attachment = message.attachments[0]
+
+    if not attachment.filename.lower().endswith(".txt"):
+        return None
+
+    file_bytes = await attachment.read()
+
+    try:
+        return file_bytes.decode("utf-8").strip()
+    except UnicodeDecodeError:
+        return None
 
 
 # =========================
@@ -246,11 +328,14 @@ async def tailor(ctx, *, job: str):
         await ctx.send("Unauthorized.")
         return
 
-    data = load_data()
+    context = BotContext()
     user_id = str(ctx.author.id)
 
-    profile = get_user_profile(data, user_id)
-    background = build_background_from_profile(profile)
+    if not context.has_profile():
+        await ctx.send(
+            "No active profile. Use !setprofile or !loadprofile first."
+        )
+        return
 
     await ctx.send("Generating resume... ⏳")
 
@@ -259,14 +344,13 @@ async def tailor(ctx, *, job: str):
 
             result = await asyncio.to_thread(
                 pipeline.run,
-                background,
+                context.background,
                 job
             )
 
         final_resume = result["final_resume"]
 
-        data = load_data()
-        user_id = str(ctx.author.id)
+        data = context.data
 
         if user_id not in data:
             data[user_id] = {"jobs": []}
@@ -277,7 +361,7 @@ async def tailor(ctx, *, job: str):
             "timestamp": datetime.utcnow().isoformat()
         })
 
-        save_data(data)
+        context.save()
 
         file_buffer = io.BytesIO(final_resume.encode("utf-8"))
 
@@ -322,23 +406,34 @@ async def tailorbatch(ctx):
             check=check
         )
 
-        content = msg.content.strip()
+        content = await get_message_text(msg)
 
-        if content.upper() == "DONE":
+        if msg.content.strip().upper() == "DONE":
             break
+
+        if not content:
+            await ctx.send(
+                "❌ I could not read that job description.\n"
+                "Paste the text directly or upload a UTF-8 .txt file."
+            )
+            continue
 
         jobs.append(content)
 
         await ctx.send(
-            f"✅ Job #{len(jobs)} saved.\n"
-            "Paste another job description or type DONE."
+            f"✅ Job #{len(jobs)} saved "
+            f"({len(content):,} characters).\n"
+            "Paste another job description, upload a .txt file, or type DONE."
         )
 
-    data = load_data()
+    context = BotContext()
     user_id = str(ctx.author.id)
 
-    profile = get_user_profile(data, user_id)
-    background = build_background_from_profile(profile)
+    if not context.has_profile():
+        await ctx.send(
+            "No active profile. Use !setprofile or !loadprofile first."
+        )
+        return
 
     await ctx.send("Generating universal resume... ⏳")
 
@@ -348,14 +443,13 @@ async def tailorbatch(ctx):
 
             result = await asyncio.to_thread(
                 pipeline.run_universal,
-                background,
+                context.background,
                 jobs
             )
 
         universal_resume = result["resume"]
 
-        data = load_data()
-        user_id = str(ctx.author.id)
+        data = context.data
 
         if user_id not in data:
             data[user_id] = {"jobs": []}
@@ -366,7 +460,7 @@ async def tailorbatch(ctx):
             "timestamp": datetime.utcnow().isoformat()
         })
 
-        save_data(data)
+        context.save()
 
         file_buffer = io.BytesIO(
             universal_resume.encode("utf-8")
@@ -448,7 +542,8 @@ async def regen(ctx, index: int):
         await ctx.send("Unauthorized.")
         return
 
-    data = load_data()
+    context = BotContext()
+    data = context.data
     user_id = str(ctx.author.id)
 
     if user_id not in data or not data[user_id]["jobs"]:
@@ -463,9 +558,9 @@ async def regen(ctx, index: int):
 
     selected_job = jobs[index - 1]["job"]
 
-    # ✅ FIX: Use stored profile instead of placeholder
-    profile = get_user_profile(data, user_id)
-    background = build_background_from_profile(profile)
+    if not context.has_profile():
+        await ctx.send("No active profile loaded.")
+        return
 
     await ctx.send(f"Regenerating resume for job #{index}... ⏳")
 
@@ -474,7 +569,7 @@ async def regen(ctx, index: int):
 
             result = await asyncio.to_thread(
                 pipeline.run,
-                background,
+                context.background,
                 selected_job
             )
 
@@ -496,7 +591,7 @@ async def regen(ctx, index: int):
             "timestamp": datetime.utcnow().isoformat()
         })
 
-        save_data(data)
+        context.save()
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
@@ -551,12 +646,16 @@ async def profile(ctx):
         await ctx.send("Unauthorized.")
         return
 
-    data = load_data()
-    user_id = str(ctx.author.id)
+    context = BotContext()
 
-    profile = get_user_profile(data, user_id)
+    if not context.has_profile():
+        await ctx.send("No active profile loaded.")
+        return
 
-    msg = "**📄 Your Profile**\n\n"
+    profile = context.profile
+    active = context.active_profile_name
+
+    msg = f"**📄 Active Profile: {active}**\n\n"
 
     msg += "**Work Experience:**\n"
     if profile["work"]:
@@ -593,27 +692,9 @@ async def profile(ctx):
 # =========================
 @bot.command()
 async def profileclear(ctx):
-
-    if not is_authorized(ctx):
-        await ctx.send("Unauthorized.")
-        return
-
-    data = load_data()
-    user_id = str(ctx.author.id)
-
-    data[user_id] = {
-        "jobs": [],
-        "profile": {
-            "work": [],
-            "projects": [],
-            "education": {},
-            "activities": []
-        }
-    }
-
-    save_data(data)
-
-    await ctx.send("🧹 Profile cleared.")
+    await ctx.send(
+        "This command has been replaced by the upcoming profile management system."
+    )
 
 
 # =========================
@@ -626,19 +707,22 @@ async def profilesummary(ctx):
         await ctx.send("Unauthorized.")
         return
 
-    data = load_data()
-    user_id = str(ctx.author.id)
+    context = BotContext()
 
-    profile = get_user_profile(data, user_id)
+    if not context.has_profile():
+        await ctx.send("No active profile loaded.")
+        return
+
+    profile = context.profile
 
     summary = f"""
-PROFILE SUMMARY:
+    PROFILE SUMMARY: {context.active_profile_name}
 
-Work Experience: {len(profile['work'])}
-Projects: {len(profile['projects'])}
-Education: {'Yes' if profile['education'] else 'No'}
-Activities: {len(profile['activities'])}
-"""
+    Work Experience: {len(profile['work'])}
+    Projects: {len(profile['projects'])}
+    Education: {'Yes' if profile['education'] else 'No'}
+    Activities: {len(profile['activities'])}
+    """
 
     await ctx.send(summary)
 
@@ -646,7 +730,7 @@ Activities: {len(profile['activities'])}
 # 🧾 PROFILE INPUT (GUIDED)
 # =========================
 @bot.command()
-async def setprofile(ctx):
+async def setprofile(ctx, profile_name: str):
 
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
@@ -657,8 +741,7 @@ async def setprofile(ctx):
     def check(m):
         return m.author == ctx.author and m.channel == ctx.channel
 
-    data = load_data()
-    user_id = str(ctx.author.id)
+    context = BotContext()
 
     profile = {
         "work": [],
@@ -790,14 +873,64 @@ async def setprofile(ctx):
     # -------------------------
     # SAVE PROFILE
     # -------------------------
-    if user_id not in data:
-        data[user_id] = {"jobs": []}
+    if profile_name in context.profiles:
+        await ctx.send(
+            f"⚠️ Profile '{profile_name}' already exists and will be overwritten."
+        )
 
-    data[user_id]["profile"] = profile
+    context.profiles[profile_name] = profile
+    context.data["active_profile"] = profile_name
+    context.save()
 
-    save_data(data)
+    await ctx.send(
+        f"✅ Profile '{profile_name}' saved and loaded."
+    )
 
-    await ctx.send("✅ Profile saved successfully!")
+
+# =========================
+# 📂 LOAD PROFILE
+# =========================
+@bot.command()
+async def loadprofile(ctx, profile_name: str):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    context = BotContext()
+
+    if profile_name not in context.profiles:
+        await ctx.send(
+            f"❌ Profile '{profile_name}' does not exist."
+        )
+        return
+
+    context.data["active_profile"] = profile_name
+    context.save()
+
+    await ctx.send(
+        f"✅ Active profile set to '{profile_name}'."
+    )
+
+
+# =========================
+# 📌 ACTIVE PROFILE
+# =========================
+@bot.command()
+async def activeprofile(ctx):
+
+    if not is_authorized(ctx):
+        await ctx.send("Unauthorized.")
+        return
+
+    context = BotContext()
+    active = context.active_profile_name
+
+    if active is None:
+        await ctx.send("No active profile.")
+        return
+
+    await ctx.send(f"📄 Active profile: **{active}**")
 
 
 # =========================
