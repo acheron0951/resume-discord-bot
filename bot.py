@@ -171,6 +171,133 @@ class BotContext:
 
 
 # =========================
+# 📝 RESUME STYLE
+# =========================
+def normalize_resume_style(style):
+    """
+    Normalize user input into a supported resume style.
+
+    Returns:
+        "direct"
+        "detailed"
+        None (invalid)
+    """
+
+    if style is None:
+        return "direct"
+
+    style = style.strip().lower()
+
+    aliases = {
+        "direct": "direct",
+        "concise": "direct",
+        "short": "direct",
+
+        "detailed": "detailed",
+        "dense": "detailed",
+        "long": "detailed",
+    }
+
+    return aliases.get(style)
+
+
+# =========================
+# 📝 RESUME REQUEST
+# =========================
+class ResumeRequest:
+    STYLE_ALIASES = {
+        "direct",
+        "concise",
+        "short",
+        "detailed",
+        "dense",
+        "long",
+    }
+
+    def __init__(
+            self,
+            raw_input,
+            command_name="!tailor",
+            require_job_description=True
+    ):
+        self.command_name = command_name
+        self.require_job_description = require_job_description
+        self.original_input = raw_input.strip()
+
+        self.style = "direct"
+        self.job_description = None
+
+        self.valid = False
+        self.error = None
+
+        self._parse()
+
+    def _parse(self):
+
+        if not self.original_input:
+
+            if self.require_job_description:
+                self.error = (
+                    "❌ Please provide a job description.\n\n"
+                    "Examples:\n"
+                    f"`{self.command_name} direct <job description>`\n"
+                    f"`{self.command_name} detailed <job description>`"
+                )
+                return
+
+            self.style = "direct"
+            self.valid = True
+            return
+
+        parts = self.original_input.split(maxsplit=1)
+        first_word = parts[0].lower()
+
+        if first_word in self.STYLE_ALIASES:
+
+            self.style = normalize_resume_style(first_word)
+
+            if not self.require_job_description:
+                if len(parts) > 1 and parts[1].strip():
+                    self.error = (
+                        "❌ The batch command only accepts a resume style.\n\n"
+                        "Examples:\n"
+                        f"`{self.command_name} direct`\n"
+                        f"`{self.command_name} detailed`"
+                    )
+                    return
+
+                self.valid = True
+                return
+
+            if len(parts) < 2 or not parts[1].strip():
+                self.error = (
+                    f"❌ You selected `{self.style}` mode, "
+                    "but no job description was provided.\n\n"
+                    f"Example:\n"
+                    f"`{self.command_name} {self.style} <job description>`"
+                )
+                return
+
+            self.job_description = parts[1].strip()
+
+        else:
+
+            if not self.require_job_description:
+                self.error = (
+                    f"❌ `{first_word}` is not a valid resume style.\n\n"
+                    "Use one of these:\n"
+                    f"`{self.command_name} direct`\n"
+                    f"`{self.command_name} detailed`"
+                )
+                return
+
+            self.style = "direct"
+            self.job_description = self.original_input
+
+        self.valid = True
+
+
+# =========================
 # 🧩 INPUT HELPERS
 # =========================
 async def collect_list(ctx, bot, check, prompt):
@@ -322,11 +449,20 @@ async def removeuser(ctx, user_id: int):
 # 🚀 MAIN RESUME COMMAND
 # =========================
 @bot.command()
-async def tailor(ctx, *, job: str):
+async def tailor(ctx, *, job_input: str):
 
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
         return
+
+    request = ResumeRequest(job_input, "!tailor")
+
+    if not request.valid:
+        await ctx.send(request.error)
+        return
+
+    resume_style = request.style
+    job_description = request.job_description
 
     context = BotContext()
     user_id = str(ctx.author.id)
@@ -337,7 +473,10 @@ async def tailor(ctx, *, job: str):
         )
         return
 
-    await ctx.send("Generating resume... ⏳")
+    await ctx.send(
+        f"📝 Resume style: **{resume_style.title()}**\n"
+        "Generating resume... ⏳"
+    )
 
     try:
         async with ctx.typing():
@@ -345,7 +484,8 @@ async def tailor(ctx, *, job: str):
             result = await asyncio.to_thread(
                 pipeline.run,
                 context.background,
-                job
+                job_description,
+                resume_style
             )
 
         final_resume = result["final_resume"]
@@ -356,7 +496,7 @@ async def tailor(ctx, *, job: str):
             data[user_id] = {"jobs": []}
 
         data[user_id]["jobs"].append({
-            "job": job,
+            "job": job_description,
             "resume": final_resume,
             "timestamp": datetime.utcnow().isoformat()
         })
@@ -379,11 +519,22 @@ async def tailor(ctx, *, job: str):
 # 🌍 UNIVERSAL RESUME COMMAND
 # =========================
 @bot.command()
-async def tailorbatch(ctx):
-
+async def tailorbatch(ctx, *, style_input: str = ""):
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
         return
+
+    request = ResumeRequest(
+        style_input,
+        command_name="!tailorbatch",
+        require_job_description=False
+    )
+
+    if not request.valid:
+        await ctx.send(request.error)
+        return
+
+    resume_style = request.style
 
     await ctx.send(
         "Paste your first formatted job description.\n\n"
@@ -426,6 +577,12 @@ async def tailorbatch(ctx):
             "Paste another job description, upload a .txt file, or type DONE."
         )
 
+    if not jobs:
+        await ctx.send(
+            "❌ No job descriptions were entered. Batch generation cancelled."
+        )
+        return
+
     context = BotContext()
     user_id = str(ctx.author.id)
 
@@ -435,7 +592,10 @@ async def tailorbatch(ctx):
         )
         return
 
-    await ctx.send("Generating universal resume... ⏳")
+    await ctx.send(
+        f"📝 Resume style: **{resume_style.title()}**\n"
+        "Generating universal resume... ⏳"
+    )
 
     try:
 
@@ -444,7 +604,8 @@ async def tailorbatch(ctx):
             result = await asyncio.to_thread(
                 pipeline.run_universal,
                 context.background,
-                jobs
+                jobs,
+                resume_style
             )
 
         universal_resume = result["resume"]
@@ -489,7 +650,7 @@ async def history(ctx):
     data = load_data()
     user_id = str(ctx.author.id)
 
-    if user_id not in data or not data[user_id]["jobs"]:
+    if user_id not in data or not data[user_id].get("jobs"):
         await ctx.send("No history found.")
         return
 
@@ -497,8 +658,14 @@ async def history(ctx):
 
     msg = "**Recent Jobs:**\n\n"
 
-    for i, j in enumerate(jobs, 1):
-        msg += f"{i}. {j['job'][:80]}...\n"
+    for i, job_entry in enumerate(jobs, 1):
+        resume_style = job_entry.get("style", "direct")
+        job_name = job_entry.get("job", "Unknown job")
+
+        msg += (
+            f"{i}. [{resume_style.title()}] "
+            f"{job_name[:80]}...\n"
+        )
 
     await ctx.send(msg)
 
@@ -546,7 +713,7 @@ async def regen(ctx, index: int):
     data = context.data
     user_id = str(ctx.author.id)
 
-    if user_id not in data or not data[user_id]["jobs"]:
+    if user_id not in data or not data[user_id].get("jobs"):
         await ctx.send("No history found.")
         return
 
@@ -556,13 +723,19 @@ async def regen(ctx, index: int):
         await ctx.send("Invalid job number.")
         return
 
-    selected_job = jobs[index - 1]["job"]
+    job_entry = jobs[index - 1]
+
+    selected_job = job_entry["job"]
+    resume_style = job_entry.get("style", "direct")
 
     if not context.has_profile():
         await ctx.send("No active profile loaded.")
         return
 
-    await ctx.send(f"Regenerating resume for job #{index}... ⏳")
+    await ctx.send(
+        f"🔁 Regenerating resume for job #{index}\n"
+        f"📝 Resume style: **{resume_style.title()}** ⏳"
+    )
 
     try:
         async with ctx.typing():
@@ -570,12 +743,15 @@ async def regen(ctx, index: int):
             result = await asyncio.to_thread(
                 pipeline.run,
                 context.background,
-                selected_job
+                selected_job,
+                resume_style
             )
 
         final_resume = result["final_resume"]
 
-        file_buffer = io.BytesIO(final_resume.encode("utf-8"))
+        file_buffer = io.BytesIO(
+            final_resume.encode("utf-8")
+        )
 
         await ctx.send(
             file=discord.File(
@@ -584,10 +760,10 @@ async def regen(ctx, index: int):
             )
         )
 
-        # Save regenerated version
         jobs.append({
             "job": selected_job,
             "resume": final_resume,
+            "style": resume_style,
             "timestamp": datetime.utcnow().isoformat()
         })
 

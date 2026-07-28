@@ -135,7 +135,13 @@ Return:
 # 📝 Resume Generator
 # =========================
 class ResumeGenerator(ResumeTailor):
-    def run(self, strategy, background, critique):
+    def run(
+            self,
+            strategy,
+            background,
+            critique,
+            resume_style="direct"
+    ):
         prompt = f"""
 Generate a highly polished, ATS-friendly resume.
 
@@ -235,9 +241,9 @@ class ResumePipeline:
     # -------------------------
     # Tailored Resume Pipeline
     # -------------------------
-    def run(self, background, job):
+    def run(self, background, job, resume_style="direct"):
 
-        print("\n🔍 Running analysis...")
+        print(f"\n🔍 Running analysis [{resume_style}]...")
 
         analysis = self.analyzer.run(background, job)
 
@@ -250,7 +256,8 @@ class ResumePipeline:
         resume = self.generator.run(
             strategy,
             background,
-            critique="None"
+            critique="None",
+            resume_style=resume_style
         )
 
         print("🧪 Critiquing...")
@@ -262,7 +269,8 @@ class ResumePipeline:
         final_resume = self.generator.run(
             strategy,
             background,
-            critique
+            critique,
+            resume_style=resume_style
         )
 
         return {
@@ -270,15 +278,24 @@ class ResumePipeline:
             "strategy": strategy,
             "resume": resume,
             "critique": critique,
-            "final_resume": final_resume
+            "final_resume": final_resume,
+            "style": resume_style
         }
 
     # -------------------------
     # Universal Resume Pipeline
     # -------------------------
-    def run_universal(self, background, jobs):
+    def run_universal(
+        self,
+        background,
+        jobs,
+        resume_style="direct"
+    ):
 
-        print("\n🌍 Building universal strategy...")
+        print(
+            f"\n🌍 Building universal strategy "
+            f"[{resume_style}]..."
+        )
 
         strategy = self.universal_strategist.run(
             background,
@@ -290,12 +307,14 @@ class ResumePipeline:
         universal_resume = self.generator.run(
             strategy,
             background,
-            critique="Broad ATS optimization"
+            critique="Broad ATS optimization",
+            resume_style=resume_style
         )
 
         return {
             "strategy": strategy,
-            "resume": universal_resume
+            "resume": universal_resume,
+            "style": resume_style
         }
 
 
