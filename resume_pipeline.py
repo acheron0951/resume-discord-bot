@@ -132,64 +132,118 @@ Return:
 
 
 # =========================
+# 🎨 Resume Styles
+# =========================
+class ResumeStyle:
+
+    DIRECT = "direct"
+    DETAILED = "detailed"
+
+    @staticmethod
+    def get(style):
+
+        if style == ResumeStyle.DIRECT:
+            return """
+            DIRECT STYLE REQUIREMENTS:
+            - Prioritize recruiter readability over maximum detail.
+            - Keep the Professional Summary to no more than 2 short sentences.
+            - Use no more than 5 bullet points for the primary work experience.
+            - Use no more than 3 bullet points for each secondary work experience.
+            - Use no more than 5 bullet points for the primary project.
+            - Treat bullet limits as maximums, not quotas.
+            - Keep bullets concise and focused on one main idea.
+            - Remove repeated responsibilities, skills, and keywords.
+            - Replace weak wording instead of adding more text.
+            - Keep most bullets under approximately 140 characters.
+            - Optimize for a single-page resume.
+            - Prioritize concise, high-impact content over completeness.
+            """
+
+        if style == ResumeStyle.DETAILED:
+            return """
+            DETAILED STYLE REQUIREMENTS:
+            - Provide additional technical detail where appropriate.
+            - Use up to 7 bullet points for the primary work experience.
+            - Use up to 5 bullet points for each secondary work experience.
+            - Use up to 7 bullet points for the primary project.
+            - Include more context about technologies, troubleshooting, and impact.
+            - Preserve readability while providing additional depth.
+            - Avoid repeated information and unnecessary filler.
+            - Do not invent tools, responsibilities, metrics, or experience.
+            """
+
+        return ResumeStyle.get(ResumeStyle.DIRECT)
+
+
+# =========================
 # 📝 Resume Generator
 # =========================
 class ResumeGenerator(ResumeTailor):
+
     def run(
             self,
             strategy,
             background,
             critique,
-            resume_style="direct"
+            resume_style=ResumeStyle.DIRECT
     ):
+
+        style_instructions = ResumeStyle.get(resume_style)
+
         prompt = f"""
-Generate a highly polished, ATS-friendly resume.
-
-STRATEGY:
-{strategy}
-
-BACKGROUND:
-{background}
-
-CRITIQUE:
-{critique}
-
-Requirements:
-- strong action verbs
-- quantified impact where possible
-- ATS-friendly formatting
-- clean, recruiter-readable structure
-- truthful (do not fabricate metrics)
-- prioritize most relevant experience first
-- rewrite weak bullets for impact
-- keep resume to ~1 page
-
-FORMAT EXACTLY LIKE THIS:
-
-1) Tailored Resume
-
-<Full resume with sections:
-- Name + Contact
-- Professional Summary
-- Core Skills
-- Experience
-- Projects (if applicable)
-- Education
-- Activities (if applicable)
->
-
-2) Keywords (ATS-friendly)
-- bullet list of keywords used
-
-3) Missing Skills
-- Must-have gaps
-- Nice-to-have gaps
-
-Important:
-- Do NOT include "Keywords Used" inside the resume
-- Do NOT include analysis explanations
-- Keep resume clean and realistic
-"""
+        Generate a highly polished, ATS-friendly resume.
+        
+        STRATEGY:
+        {strategy}
+        
+        BACKGROUND:
+        {background}
+        
+        CRITIQUE:
+        {critique}
+        
+        RESUME STYLE:
+        {resume_style}
+        
+        {style_instructions}
+        
+        GENERAL REQUIREMENTS:
+        - Use strong action verbs.
+        - Quantify impact where truthful and supported.
+        - Use ATS-friendly formatting.
+        - Keep the structure clean and recruiter-readable.
+        - Do not fabricate metrics, tools, responsibilities, or experience.
+        - Prioritize the most relevant experience first.
+        - Rewrite weak bullets for clarity and impact.
+        - Do not repeat the same skill across multiple sections unnecessarily.
+        
+        FORMAT EXACTLY LIKE THIS:
+        
+        1) Tailored Resume
+        
+        <Full resume with sections:
+        - Name + Contact
+        - Professional Summary
+        - Core Skills
+        - Projects
+        - Professional Experience
+        - Education
+        - Certifications
+        >
+        
+        2) Keywords (ATS-friendly)
+        - bullet list of keywords used
+        
+        3) Missing Skills
+        - Must-have gaps
+        - Nice-to-have gaps
+        
+        IMPORTANT:
+        - Do NOT include "Keywords Used" inside the resume.
+        - Do NOT include analysis explanations inside the resume.
+        - Keep the resume truthful, realistic, and readable.
+        - When applying critique, improve precision instead of automatically adding length.
+        """
 
         return self.call_model(prompt)
 

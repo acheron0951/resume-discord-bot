@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import asyncio
 import io
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 
 # =========================
 # 💾 DATA STORAGE
@@ -174,28 +174,18 @@ class BotContext:
 # 📝 RESUME STYLE
 # =========================
 def normalize_resume_style(style):
-    """
-    Normalize user input into a supported resume style.
-
-    Returns:
-        "direct"
-        "detailed"
-        None (invalid)
-    """
-
     if style is None:
-        return "direct"
+        return ResumeStyle.DIRECT
 
     style = style.strip().lower()
 
     aliases = {
-        "direct": "direct",
-        "concise": "direct",
-        "short": "direct",
-
-        "detailed": "detailed",
-        "dense": "detailed",
-        "long": "detailed",
+        "direct": ResumeStyle.DIRECT,
+        "concise": ResumeStyle.DIRECT,
+        "short": ResumeStyle.DIRECT,
+        "detailed": ResumeStyle.DETAILED,
+        "dense": ResumeStyle.DETAILED,
+        "long": ResumeStyle.DETAILED,
     }
 
     return aliases.get(style)
@@ -224,7 +214,7 @@ class ResumeRequest:
         self.require_job_description = require_job_description
         self.original_input = raw_input.strip()
 
-        self.style = "direct"
+        self.style = ResumeStyle.DIRECT
         self.job_description = None
 
         self.valid = False
@@ -240,12 +230,14 @@ class ResumeRequest:
                 self.error = (
                     "❌ Please provide a job description.\n\n"
                     "Examples:\n"
-                    f"`{self.command_name} direct <job description>`\n"
-                    f"`{self.command_name} detailed <job description>`"
+                    f"`{self.command_name} "
+                    f"{ResumeStyle.DIRECT} <job description>`\n"
+                    f"`{self.command_name} "
+                    f"{ResumeStyle.DETAILED} <job description>`"
                 )
                 return
 
-            self.style = "direct"
+            self.style = ResumeStyle.DIRECT
             self.valid = True
             return
 
@@ -259,10 +251,13 @@ class ResumeRequest:
             if not self.require_job_description:
                 if len(parts) > 1 and parts[1].strip():
                     self.error = (
-                        "❌ The batch command only accepts a resume style.\n\n"
+                        "❌ The batch command only accepts "
+                        "a resume style.\n\n"
                         "Examples:\n"
-                        f"`{self.command_name} direct`\n"
-                        f"`{self.command_name} detailed`"
+                        f"`{self.command_name} "
+                        f"{ResumeStyle.DIRECT}`\n"
+                        f"`{self.command_name} "
+                        f"{ResumeStyle.DETAILED}`"
                     )
                     return
 
@@ -274,7 +269,8 @@ class ResumeRequest:
                     f"❌ You selected `{self.style}` mode, "
                     "but no job description was provided.\n\n"
                     f"Example:\n"
-                    f"`{self.command_name} {self.style} <job description>`"
+                    f"`{self.command_name} "
+                    f"{self.style} <job description>`"
                 )
                 return
 
@@ -286,12 +282,14 @@ class ResumeRequest:
                 self.error = (
                     f"❌ `{first_word}` is not a valid resume style.\n\n"
                     "Use one of these:\n"
-                    f"`{self.command_name} direct`\n"
-                    f"`{self.command_name} detailed`"
+                    f"`{self.command_name} "
+                    f"{ResumeStyle.DIRECT}`\n"
+                    f"`{self.command_name} "
+                    f"{ResumeStyle.DETAILED}`"
                 )
                 return
 
-            self.style = "direct"
+            self.style = ResumeStyle.DIRECT
             self.job_description = self.original_input
 
         self.valid = True
@@ -373,7 +371,7 @@ bot = commands.Bot(
 # =========================
 # 🧠 IMPORT AI PIPELINE
 # =========================
-from resume_pipeline import ResumePipeline, client
+from resume_pipeline import ResumePipeline, ResumeStyle, client
 
 pipeline = ResumePipeline(client)
 
@@ -498,7 +496,7 @@ async def tailor(ctx, *, job_input: str):
         data[user_id]["jobs"].append({
             "job": job_description,
             "resume": final_resume,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
         context.save()
@@ -618,7 +616,7 @@ async def tailorbatch(ctx, *, style_input: str = ""):
         data[user_id]["jobs"].append({
             "job": f"Universal Resume ({len(jobs)} jobs)",
             "resume": universal_resume,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
         context.save()
@@ -764,7 +762,7 @@ async def regen(ctx, index: int):
             "job": selected_job,
             "resume": final_resume,
             "style": resume_style,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         })
 
         context.save()
