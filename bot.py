@@ -319,25 +319,27 @@ async def collect_list(ctx, bot, check, prompt):
 # 📎 MESSAGE TEXT HELPER
 # =========================
 async def get_message_text(message):
+
+    # Prefer a .txt attachment if one exists
+    for attachment in message.attachments:
+
+        if attachment.filename.lower().endswith(".txt"):
+
+            file_bytes = await attachment.read()
+
+            try:
+                return file_bytes.decode("utf-8").strip()
+
+            except UnicodeDecodeError:
+                return None
+
+    # Otherwise, use pasted message text
     content = message.content.strip()
 
     if content:
         return content
 
-    if not message.attachments:
-        return None
-
-    attachment = message.attachments[0]
-
-    if not attachment.filename.lower().endswith(".txt"):
-        return None
-
-    file_bytes = await attachment.read()
-
-    try:
-        return file_bytes.decode("utf-8").strip()
-    except UnicodeDecodeError:
-        return None
+    return None
 
 
 # =========================
@@ -447,20 +449,40 @@ async def removeuser(ctx, user_id: int):
 # 🚀 MAIN RESUME COMMAND
 # =========================
 @bot.command()
-async def tailor(ctx, *, job_input: str):
+async def tailor(ctx, *, style_input: str = ""):
 
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
         return
 
-    request = ResumeRequest(job_input, "!tailor")
+    # Read job description from either pasted text or attached .txt file
+    job_description = await get_message_text(ctx.message)
+
+    if not job_description:
+        await ctx.send(
+            "❌ Please provide a job description "
+            "or attach a `.txt` file."
+        )
+        return
+
+    # Report the exact amount of text that was read
+    await ctx.send(
+        f"📄 Job description received "
+        f"({len(job_description):,} characters)."
+    )
+
+    # Parse ONLY the resume style from the command arguments
+    request = ResumeRequest(
+        style_input,
+        command_name="!tailor",
+        require_job_description=False
+    )
 
     if not request.valid:
         await ctx.send(request.error)
         return
 
     resume_style = request.style
-    job_description = request.job_description
 
     context = BotContext()
     user_id = str(ctx.author.id)
@@ -501,7 +523,9 @@ async def tailor(ctx, *, job_input: str):
 
         context.save()
 
-        file_buffer = io.BytesIO(final_resume.encode("utf-8"))
+        file_buffer = io.BytesIO(
+            final_resume.encode("utf-8")
+        )
 
         await ctx.send(
             file=discord.File(
