@@ -449,40 +449,70 @@ async def removeuser(ctx, user_id: int):
 # 🚀 MAIN RESUME COMMAND
 # =========================
 @bot.command()
-async def tailor(ctx, *, style_input: str = ""):
+async def tailor(ctx, *, job_input: str = ""):
 
     if not is_authorized(ctx):
         await ctx.send("Unauthorized.")
         return
 
-    # Read job description from either pasted text or attached .txt file
-    job_description = await get_message_text(ctx.message)
+    # Check whether the message contains a .txt attachment
+    has_txt_attachment = any(
+        attachment.filename.lower().endswith(".txt")
+        for attachment in ctx.message.attachments
+    )
 
-    if not job_description:
-        await ctx.send(
-            "❌ Please provide a job description "
-            "or attach a `.txt` file."
+    # =====================================================
+    # ATTACHED .TXT FILE
+    # =====================================================
+    if has_txt_attachment:
+
+        job_description = await get_message_text(ctx.message)
+
+        if not job_description:
+            await ctx.send(
+                "❌ I could not read the attached `.txt` file.\n"
+                "Please make sure it is a UTF-8 encoded text file."
+            )
+            return
+
+        # The command argument is ONLY the optional resume style
+        request = ResumeRequest(
+            job_input,
+            command_name="!tailor",
+            require_job_description=False
         )
-        return
 
-    # Report the exact amount of text that was read
+        if not request.valid:
+            await ctx.send(request.error)
+            return
+
+        resume_style = request.style
+
+    # =====================================================
+    # PASTED JOB DESCRIPTION
+    # =====================================================
+    else:
+
+        request = ResumeRequest(
+            job_input,
+            command_name="!tailor",
+            require_job_description=True
+        )
+
+        if not request.valid:
+            await ctx.send(request.error)
+            return
+
+        resume_style = request.style
+        job_description = request.job_description
+
+    # =====================================================
+    # CHARACTER COUNT
+    # =====================================================
     await ctx.send(
         f"📄 Job description received "
         f"({len(job_description):,} characters)."
     )
-
-    # Parse ONLY the resume style from the command arguments
-    request = ResumeRequest(
-        style_input,
-        command_name="!tailor",
-        require_job_description=False
-    )
-
-    if not request.valid:
-        await ctx.send(request.error)
-        return
-
-    resume_style = request.style
 
     context = BotContext()
     user_id = str(ctx.author.id)
