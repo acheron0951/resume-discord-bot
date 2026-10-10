@@ -136,17 +136,13 @@ Tailored Resume
 ## Resume Generation
 
 ```text
-!tailor
-!tailor direct
-!tailor detailed
+!tailor direct — Generates a concise, ATS-friendly resume tailored to a single job description.
 
-!tailorbatch
-!tailorbatch direct
-!tailorbatch detailed
+!tailor detailed — Generates a more detailed, ATS-friendly resume tailored to a single job description.
 
-!regen
-!history
-!search
+!tailorbatch direct — Generates a concise universal resume using multiple job descriptions to identify shared skills and qualifications.
+
+!tailorbatch detailed — Generates a more detailed universal resume using multiple job descriptions to identify shared skills and qualifications.
 ```
 
 ---
@@ -154,20 +150,46 @@ Tailored Resume
 ## Profile Management
 
 ```text
-!setprofile
-!profile
-!profilesummary
-!loadprofile
-!activeprofile
+!setprofile — Creates or updates a professional profile containing work experience, projects, education, and activities.
+
+!profile — Displays the currently active professional profile.
+
+!profilesummary — Summarizes the active profile and its stored information.
+
+!loadprofile <name> — Switches to a previously saved profile.
+
+!activeprofile — Displays the name of the currently active profile.
 ```
 
-Future profile commands:
+## Resume History & Search
 
 ```text
-!profiles
-!renameprofile
-!cloneprofile
-!deleteprofile
+!history — Displays previously generated resumes and their associated job entries.
+
+!last — Retrieves the most recently generated resume.
+
+!regen <index> — Regenerates a resume from a previously stored job entry.
+
+!search <keyword> — Searches saved resume history for matching entries.
+```
+
+## Utilities
+```text
+!ping — Checks whether the bot is responsive.
+```
+
+## Planned Features
+
+```text
+The following commands are planned but not yet implemented:
+
+!profiles — Lists all saved profiles.
+
+!renameprofile <old name> <new name> — Renames a saved profile.
+
+!cloneprofile <name> — Creates a copy of an existing profile.
+
+!deleteprofile <name> — Deletes a saved profile.
 ```
 
 ---
